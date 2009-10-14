@@ -1,6 +1,6 @@
 --- #YAML:1.0
 name:               MojoX-Log-Log4perl
-version:            0.01
+version:            0.02
 abstract:           Log::Log4perl logging for Mojo/Mojolicious
 author:
     - Breno G. de Oliveira <garu@cpan.org>
@@ -11,9 +11,9 @@ configure_requires:
 build_requires:
     ExtUtils::MakeMaker:  0
 requires:
-    Log::Log4perl:  0
-    Mojo:           0
-    Test::More:     0
+    Log::Log4perl:  1.25
+    Mojo:           0.991251
+    Test::More:     0.94
 no_index:
     directory:
         - t
