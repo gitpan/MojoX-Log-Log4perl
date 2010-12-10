@@ -1,6 +1,6 @@
 --- #YAML:1.0
 name:               MojoX-Log-Log4perl
-version:            0.02
+version:            0.03
 abstract:           Log::Log4perl logging for Mojo/Mojolicious
 author:
     - Breno G. de Oliveira <garu@cpan.org>
@@ -12,13 +12,13 @@ build_requires:
     ExtUtils::MakeMaker:  0
 requires:
     Log::Log4perl:  1.25
-    Mojo:           0.991251
+    Mojolicious:    0.99992
     Test::More:     0.94
 no_index:
     directory:
         - t
         - inc
-generated_by:       ExtUtils::MakeMaker version 6.54
+generated_by:       ExtUtils::MakeMaker version 6.56
 meta-spec:
     url:      http://module-build.sourceforge.net/META-spec-v1.4.html
     version:  1.4
