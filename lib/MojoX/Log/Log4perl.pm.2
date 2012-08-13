@@ -4,10 +4,10 @@ use Log::Log4perl;
 use warnings;
 use strict;
 
-our $VERSION = '0.05';
+our $VERSION = '0.03';
 
 sub new {
-	my ($class, $conf_file, $watch) = (@_);
+	my ($class, $conf_file) = (@_);
 	
 	$conf_file ||= {
 		'log4perl.rootLogger' => 'DEBUG, SCREEN',
@@ -16,12 +16,7 @@ sub new {
 		'log4perl.appender.SCREEN.layout.ConversionPattern' => '[%d] [mojo] [%p] %m%n',
 	};
 	
-	if ($watch) {
-		Log::Log4perl::init_and_watch($conf_file, $watch);
-	}
-	else {
-		Log::Log4perl->init_once($conf_file);
-	}
+	Log::Log4perl->init_once($conf_file);
 
 	my $self = {};
 	bless $self, $class;
@@ -60,18 +55,15 @@ sub new {
 }
 
 sub log {
-	my ($self, $level, @msgs) = @_;
+  my ($self, $level, @msgs) = @_;
 
-	my $logger = $self->_get_logger();
-    
-	# Check
-	$level = lc $level;
+  $level = lc $level;
 	if ($level =~ m/^(?:trace|debug|info|warn|error|fatal)$/o) {
-		local $Log::Log4perl::caller_depth =
-		   $Log::Log4perl::caller_depth + 1;
-		$logger->$level(@msgs);
+    local $Log::Log4perl::caller_depth =
+       $Log::Log4perl::caller_depth + 1;
+		$self->_get_logger->$level(@msgs);
 	}
-	return $self;
+  return $self;
 }
 
 sub is_trace { shift->_get_logger->is_trace }
@@ -102,23 +94,23 @@ sub level {
 	my ($self, $level) = (@_);
 	my $logger = $self->_get_logger;
 
-	require Log::Log4perl::Level;
-	if ($level) {
-		return $logger->level( Log::Log4perl::Level::to_priority(uc $level) );
-	}
-	else {
-		return Log::Log4perl::Level::to_level( $logger->level() );
-	}
+    require Log::Log4perl::Level;
+    if ($level) {
+    	return $logger->level( Log::Log4perl::Level::to_priority(uc $level) );
+    }
+    else {
+      return Log::Log4perl::Level::to_level( $logger->level() );
+    }
 }
 
 sub _get_logger {
-	# get our caller
-	my ($pkg, $line) = (caller())[0, 2];
-	($pkg, $line) = (caller(1))[0, 2] if $pkg eq ref shift;
+    # get our caller
+    my ($pkg, $line) = (caller())[0, 2];
+    ($pkg, $line) = (caller(1))[0, 2] if $pkg eq ref shift;
 
-	# get correct logger for our caller
-	my $logger = Log::Log4perl->get_logger($pkg);
-	return $logger;
+    # get correct logger for our caller
+    my $logger = Log::Log4perl->get_logger($pkg);
+    return $logger;
 }
 
 1;
@@ -145,17 +137,6 @@ In lib/MyApp.pm:
   # lets try that. example.conf is included in the distribution.
   
   $self->log( MojoX::Log::Log4perl->new('example.conf') );
-
-  # you can even make it periodically check for changes in the
-  # configuration file and automatically reload them while your
-  # app is still running!
-
-  # check for changes every 10 seconds
-  $self->log( MojoX::Log::Log4perl->new('example.conf', 10)    );
-
-  # or check for changes only upon receiving SIGHUP
-  $self->log( MojoX::Log::Log4perl->new('example.conf', 'HUP') );
-
 
 And later, inside any Mojo/Mojolicious module...
 
@@ -208,14 +189,6 @@ If you don't give it any arguments, the following default configuration is set:
   log4perl.appender.SCREEN.layout' = PatternLayout
   log4perl.appender.SCREEN.layout.ConversionPattern = [%d] [mojo] [%p] %m%n
 
-=head2 new( $config, $delay )
-
-As as optional second argument to C<new()>, you can set a delay in seconds that will be passed directly to Log::Log4perl::init_and_watch. This makes Log4perl check every C<$delay> seconds for changes in the configuration file, and reload it if the file modification time is different.
-
-You can also define a signal to watch and Log4perl will setup a signal handler to check the configuration file again only when that particular signal is received by the application, for example via the C<kill> command:
-
-  kill -HUP pid
-
 
 =head1 LOG LEVELS
 
@@ -237,8 +210,6 @@ Below are all log levels from MojoX::Log::Log4perl, in descending priority:
 
 Just like C<< Log::Log4perl >>: "If your configured logging level is WARN, then messages logged with info(), debug(), and trace() will be suppressed. fatal(), error() and warn() will make their way through, because their priority is higher or equal than the configured setting."
 
-The return value is the log object itself, to allow method chaining and further manipulation.
-
 =head2 C<log>
 
 You can also use the C<< log() >> method just like in C<< Mojo::Log >>:
@@ -246,8 +217,6 @@ You can also use the C<< log() >> method just like in C<< Mojo::Log >>:
   $logger->log( info => 'I can haz cheezburger');
 
 But nobody does that, really.
-
-As with the regular logging methods, the return value is the log object itself.
 
 =head1 CHECKING LOG LEVELS
 
@@ -406,7 +375,7 @@ L<< Log::Log4perl >>, L<< Mojo::Log >>, L<< Mojo >>, L<< Mojolicious >>
 
 =head1 COPYRIGHT & LICENSE
 
-Copyright 2009-2012 Breno G. de Oliveira, all rights reserved.
+Copyright 2009 Breno G. de Oliveira, all rights reserved.
 
 This program is free software; you can redistribute it and/or modify it
 under the same terms as Perl itself.
