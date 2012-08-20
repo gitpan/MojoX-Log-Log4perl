@@ -1,10 +1,11 @@
 package MojoX::Log::Log4perl;
+use Mojo::Base 'Mojo::EventEmitter';
 use Log::Log4perl;
 
 use warnings;
 use strict;
 
-our $VERSION = '0.05';
+our $VERSION = '0.06';
 
 sub new {
 	my ($class, $conf_file, $watch) = (@_);
@@ -23,8 +24,8 @@ sub new {
 		Log::Log4perl->init_once($conf_file);
 	}
 
-	my $self = {};
-	bless $self, $class;
+	my $self = $class->SUPER::new();
+	$self->on( message => \&_message );
 	return $self;
 }
 
@@ -50,29 +51,22 @@ sub new {
 
         *{ __PACKAGE__ . "::$level" } =
             sub {
-                my $self = shift;
-                local $Log::Log4perl::caller_depth =
-                   $Log::Log4perl::caller_depth + 1;
-                $self->_get_logger->$level(@_);
-                return $self;
+                return shift->emit( message => $level => @_ );
             };
     }
 }
 
-sub log {
-	my ($self, $level, @msgs) = @_;
+sub _message {
+	my ($self, $level, @message ) = @_;
+	my $depth = 3;
+	local $Log::Log4perl::caller_depth
+      = $Log::Log4perl::caller_depth + $depth;
 
-	my $logger = $self->_get_logger();
-    
-	# Check
-	$level = lc $level;
-	if ($level =~ m/^(?:trace|debug|info|warn|error|fatal)$/o) {
-		local $Log::Log4perl::caller_depth =
-		   $Log::Log4perl::caller_depth + 1;
-		$logger->$level(@msgs);
-	}
+	$self->_get_logger( $depth )->$level( @message );
 	return $self;
 }
+
+sub log { shift->emit('message', lc(shift), @_) }
 
 sub is_trace { shift->_get_logger->is_trace }
 sub is_debug { shift->_get_logger->is_debug }
@@ -83,15 +77,11 @@ sub is_fatal { shift->_get_logger->is_fatal }
 
 sub is_level {
 	my ($self, $level) = (@_);
-	
-	# Shortcut
 	return 0 unless $level;
 	
-	# Check
 	if ($level =~ m/^(?:trace|debug|info|warn|error|fatal)$/o) {
-		my $level = "is_$level";
-		my $logger = $self->_get_logger;
-		return $logger->$level;
+		my $is_level = "is_$level";
+		return $self->_get_logger->$is_level;
 	}
 	else {
 		return 0;
@@ -111,14 +101,9 @@ sub level {
 	}
 }
 
+# $_[0] == $self, $_[1] == optional caller level (defaults to 1)
 sub _get_logger {
-	# get our caller
-	my ($pkg, $line) = (caller())[0, 2];
-	($pkg, $line) = (caller(1))[0, 2] if $pkg eq ref shift;
-
-	# get correct logger for our caller
-	my $logger = Log::Log4perl->get_logger($pkg);
-	return $logger;
+	return Log::Log4perl->get_logger( scalar caller( $_[1] || 1 ) );
 }
 
 1;
@@ -205,7 +190,7 @@ If you don't give it any arguments, the following default configuration is set:
 
   log4perl.rootLogger = DEBUG, SCREEN
   log4perl.appender.SCREEN = Log::Log4perl::Appender::Screen
-  log4perl.appender.SCREEN.layout' = PatternLayout
+  log4perl.appender.SCREEN.layout = PatternLayout
   log4perl.appender.SCREEN.layout.ConversionPattern = [%d] [mojo] [%p] %m%n
 
 =head2 new( $config, $delay )

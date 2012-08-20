@@ -1,12 +1,13 @@
 Changes
 lib/MojoX/Log/Log4perl.pm
-lib/MojoX/Log/Log4perl.pm.2
 Makefile.PL
-MANIFEST
-META.yml			Module meta-data (added by MakeMaker)
+MANIFEST			This list of files
 README
 t/00-load.t
 t/01-standard.t
+t/02-justworks.t
+t/03-events.t
 t/pod-coverage.t
 t/pod.t
+META.yml                                 Module YAML meta-data (added by MakeMaker)
 META.json                                Module JSON meta-data (added by MakeMaker)

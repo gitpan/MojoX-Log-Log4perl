@@ -19,6 +19,6 @@ no_index:
     - inc
 requires:
   Log::Log4perl: 1.25
-  Mojolicious: 0.99992
+  Mojolicious: 2
   Test::More: 0.94
-version: 0.05
+version: 0.06
