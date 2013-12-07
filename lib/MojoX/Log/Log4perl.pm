@@ -5,7 +5,7 @@ use Log::Log4perl;
 use warnings;
 use strict;
 
-our $VERSION = '0.07';
+our $VERSION = '0.08';
 
 sub new {
 	my ($class, $conf_file, $watch) = (@_);
@@ -195,7 +195,7 @@ If you don't give it any arguments, the following default configuration is set:
 
 =head2 new( $config, $delay )
 
-As as optional second argument to C<new()>, you can set a delay in seconds that will be passed directly to Log::Log4perl::init_and_watch. This makes Log4perl check every C<$delay> seconds for changes in the configuration file, and reload it if the file modification time is different.
+As an optional second argument to C<new()>, you can set a delay in seconds that will be passed directly to Log::Log4perl::init_and_watch. This makes Log4perl check every C<$delay> seconds for changes in the configuration file, and reload it if the file modification time is different.
 
 You can also define a signal to watch and Log4perl will setup a signal handler to check the configuration file again only when that particular signal is received by the application, for example via the C<kill> command:
 
@@ -379,7 +379,7 @@ L<http://search.cpan.org/dist/MojoX-Log-Log4perl/>
 
 =head1 ACKNOWLEDGEMENTS
 
-This module was heavilly inspired by L<< Catalyst::Log::Log4perl >>. A lot of the documentation and specifications were taken almost verbatim from it.
+This module was heavily inspired by L<< Catalyst::Log::Log4perl >>. A lot of the documentation and specifications were taken almost verbatim from it.
 
 Also, this is just a minor work. Credit is really due to Michael Schilli and Sebastian Riedel, creators and maintainers of L<< Log::Log4perl >> and L<< Mojo >>, respectively.
 
@@ -391,7 +391,7 @@ L<< Log::Log4perl >>, L<< Mojo::Log >>, L<< Mojo >>, L<< Mojolicious >>
 
 =head1 COPYRIGHT & LICENSE
 
-Copyright 2009-2012 Breno G. de Oliveira, all rights reserved.
+Copyright 2009-2013 Breno G. de Oliveira, all rights reserved.
 
 This program is free software; you can redistribute it and/or modify it
 under the same terms as Perl itself.
